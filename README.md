@@ -118,6 +118,7 @@ Would render the default LocalBusiness schema plus the items in the $options["cu
 
 ###LocalBusiness, Organization
 All info taken by default from the module configuration data. Any element may be overridden in the $options array.
+
 Key|Value
 ---|---
 @type|LocalBusiness (or Organization)
