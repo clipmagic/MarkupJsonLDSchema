@@ -198,7 +198,7 @@ Key|Default Value
 @type|WebPage (or WebSite)
 url|$page->httpUrl
 name|$page->get('seo_title\|title\|headline')
-description|$page->get('seo_description|\summary\|blog-summary')
+description|$page->get('seo_description\|summary\|blog-summary')
 image[@type]|ImageObject
 image[url]|your image httpUrl in $options["image"], eg $page->images->first
 image[height]|image height based on $options["image"]
