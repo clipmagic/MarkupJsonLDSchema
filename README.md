@@ -1,4 +1,4 @@
-# MarkupJsonLDSchema Module v0.0.2
+# MarkupJsonLDSchema Module v0.0.3
 
 
 ## General information
@@ -208,7 +208,7 @@ potentialAction[target]|wire('pages')->get(1000)->httpUrl . "?q={search_term}"
 potentialAction[query-input]|"required name=search_term"
 
 ### Custom
-This is a dummy schema and has no default fields. Build your entire schema in $option["custom"] array.
+This is a dummy schema and has no default fields. Build your entire schema in $options["custom"] array.
 
 
 ## Change log
