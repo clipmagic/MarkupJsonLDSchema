@@ -123,7 +123,7 @@ Key|Value
 @type|LocalBusiness (or Organization)
 
 ### Breadcrumbs
-Based on the brilliant the ProcessWire forum post by AndZyk at <https://processwire.com/talk/topic/13417-structured-data/>
+Based on the brilliant ProcessWire forum post by AndZyk at <https://processwire.com/talk/topic/13417-structured-data/>
 
 Kudos also to other the other contributors to this topic, especially Macrura.
 
