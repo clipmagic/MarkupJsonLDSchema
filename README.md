@@ -132,7 +132,7 @@ Kudos also to other the other contributors to this topic, especially Macrura.
 
 ### Article, NewsArticle
 
-Again, thanks to both AndZyk and Macura in the forum post:
+Again, thanks to both AndZyk and Macrura in the forum post:
 
 Key|Default Value
 ---|---
