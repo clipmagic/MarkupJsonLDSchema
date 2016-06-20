@@ -150,7 +150,7 @@ image[url]|your image httpUrl in $options["image"], eg $page->images->first
 image[height]|image height based on $options["image"]
 image[width]|image width based on $options["image"]
 description|$page->get('seo_description\|summary\|title')
-articleBody|$page->get('body|blog-body')
+articleBody|$page->get('body\|blog-body')
 
 ### Event
 
@@ -212,5 +212,6 @@ This is a dummy schema and has no default fields. Build your entire schema in $o
 
 
 ## Change log
+2016-06-20: Minor edits, v0.0.3
 2016-06-19: Initial release, v0.0.2
 
