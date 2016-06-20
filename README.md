@@ -82,6 +82,7 @@ Would render the schema "@type" as "RealEstateAgent" instead of "LocalBusiness".
 You can add to the pre-defined schema arrays with the use of the 'custom' key in the $options array, eg:
 
 ```
+<?php
 $jsonld = $modules->get("MarkupJsonLDSchema");
 $options = array();
 $options["custom"] = array (
@@ -90,7 +91,8 @@ $options["custom"] = array (
   		"@type" => "FooBar",
   		"name" => "Mary Contrary",
   )
-)
+);
+?>
 <script type="application/ld+json">
   <?php $jsonld->render('LocalBusiness',$options); ?>
 </script>
