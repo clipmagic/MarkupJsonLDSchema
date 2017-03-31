@@ -30,7 +30,7 @@ class JsonLDWebPage  extends WireData {
          }
         
         // Ensure your frontend search page is working correctly!
-        $out["potentionalAction"] = array(
+        $out["potentialAction"] = array(
             "@type" => "SearchAction",
             "target" => wire('pages')->get(1000)->httpUrl . "?q={search_term}",
             "query-input" => "required name=search_term"
