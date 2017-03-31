@@ -265,6 +265,8 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
             }
         }
         
+        $result = array_filter($result);
+
         $out = json_encode($result);
 
         return $out;
