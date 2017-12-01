@@ -63,6 +63,7 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
             "description" => "",       // string - short description, eg meta description
             "address_region" => "",    // string - eg state
             "postcode" => "",          // string - postcode or zip
+            "address_country" => "",   // string - ISO3166-1 alpha-2 country code
             "street_address" => "",    // string - self explanatory
             "organization" => "",      // string - name of the business or organization
             "logo" => "",              // string - http url to the logo image
