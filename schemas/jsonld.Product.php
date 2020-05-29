@@ -33,8 +33,24 @@ class JsonLDProduct  extends WireData {
                 "reviewCoumt" => $sanitizer->text($data['review_count'])
             
             );
-         }
-         $out = array_filter($out);   
-         return $out;
+        }
+        if (!empty($data['price'])) {
+            $out['offers'] = array(
+                "@type" => "Offer",
+                "url" => $page->httpUrl,
+                "priceCurrency" => "USD",
+                "price" => $data['price'],
+                "itemCondition" => "https://schema.org/NewCondition",
+                "availability" => "https://schema.org/InStock",
+            );
+            if (!empty($data['company'])) {
+                $out['offers']["seller"] = array(
+                    "@type" => "Organization",
+                    "name" => $data['company']
+                );
+            }
+        }
+        $out = array_filter($out);   
+        return $out;
     }
 }?>
