@@ -1,10 +1,10 @@
 <?php
-class JsonLDLocalBusiness extends WireData {    
+class JsonLDOrganization extends WireData {    
     public function __construct() {
     }
     
     public static function getSchema (array $data = null, Page $page = null) {
-        // LocalBusiness
+        // Organization
         
         $out = array();
         $page = wire('page');
@@ -14,7 +14,7 @@ class JsonLDLocalBusiness extends WireData {
         $seo_description = !empty($data['description']) ? $sanitizer->text($data['description']) : $page->get('seo_description|headline|summary|title');
  
         $out["@context"]         = "http://schema.org/";
-        $out["@type"]            = !empty($data["@type"]) ? $sanitizer->text($data["@type"]) : "LocalBusiness";
+        $out["@type"]            = !empty($data["@type"]) ? $sanitizer->text($data["@type"]) : "Organization";
         $out['name']             = $sanitizer->text($data['organization']);
         $out['address']          = array(
             "@type"              => "PostalAddress",
@@ -27,14 +27,6 @@ class JsonLDLocalBusiness extends WireData {
         $out['description']      = !empty($data['description']) ? $sanitizer->text($data['description']) : $sanitizer->text($seo_description);
         $out['telephone']        = $sanitizer->text($data['telephone']);
         $out['openingHours']     = $sanitizer->text($data['opening_hours']);
-
-        /* When show multiples images of Local Business 
-         * ej. $data['listimage'] = array(
-         *          "http://mydomain.com/local/path/images/image1.jpg", 
-         *          "http://mydomain.com/local/path/images/image2.jpg", 
-         *          "http://mydomain.com/local/path/images/image3.jpg"
-         *      );
-         */
         if (!empty($data['listimage'])) {
             $out['image'] = $data['listimage'];
         }
@@ -45,6 +37,9 @@ class JsonLDLocalBusiness extends WireData {
                 'latitude'  => $sanitizer->text($data['latitude']),
                 'longitude' => $sanitizer->text($data['longitude'])
             );
+            //if (!empty($data['has_map'])) {
+            //    $out['geo']['hasMap'] = $sanitizer->url($data['has_map']);
+            //}
         }
         if (!empty($data['same_as']))
             $out['sameAs']       = explode(PHP_EOL,$data['same_as']);

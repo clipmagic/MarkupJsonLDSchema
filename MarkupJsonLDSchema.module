@@ -41,7 +41,7 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
     public static function getModuleInfo() {
         return array(
             'title' => "Json-LD Schema",
-            'version' => "0.0.2",
+            'version' => "0.0.3",
             'summary' => "This module automatically generates semantically correct JSON-LD Schemas for your Processwire web pages for improved Search Engine results.",
             'author' => "Clip Magic",
             'href' => "http://www.clipmagic.com.au",
@@ -268,7 +268,7 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         
         $result = array_filter($result);
 
-        $out = json_encode($result);
+        $out = json_encode($result, JSON_UNESCAPED_SLASHES);
 
         return $out;
     }

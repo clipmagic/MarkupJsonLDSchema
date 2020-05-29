@@ -42,6 +42,11 @@ A more complex example using the $options array in _footer.php:
     $jsonld = $modules->get('MarkupJsonLDSchema');
     $options = array(
         'logo' => $pages->get(1)->images->first->width(200)
+        'listimage' => array(
+            "http://mydomain.com/local/path/images/image1.jpg", 
+            "http://mydomain.com/local/path/images/image2.jpg", 
+            "http://mydomain.com/local/path/images/image3.jpg"
+        );
     );
  ?>
 <script type="application/ld+json">
