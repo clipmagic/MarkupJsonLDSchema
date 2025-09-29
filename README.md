@@ -17,7 +17,7 @@ There are plenty of reference sites and guides to learn more about json+ld schem
 There are also a few very informative posts in the ProcessWire forums.
 
 ## Installation
-* Download the zip file into your site/modules folder then expand the zip file
+* Available on GitHub at https://github.com/clipmagic/MarkupJsonLDSchema
 * Login to ProcessWire > go to Modules > click "Refresh". You should see a note that a new module was found. Install the module. Configuration is not compulsory. It's simply a shortcut to populating an Organization or Business type schema. Worth it though!
 
 
