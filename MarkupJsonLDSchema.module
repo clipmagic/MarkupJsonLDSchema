@@ -1,0 +1,346 @@
+<?php namespace ProcessWire;
+/**
+ * Json-LD Schemas (0.0.3)
+ * This module automatically generates semantically correct JSONLD Schema for your Processwire web pages for improved Search Engine results.
+ * 
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Or read it online: http://www.gnu.org/licenses/licenses.html *GPL
+ *
+ * 
+ * 
+ * @author Clip Magic
+ * 
+ * ProcessWire 2.x
+ * Copyright (C) 2011 by Ryan Cramer
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://www.processwire.com
+ * http://www.ryancramer.com
+ * 
+ */
+
+
+
+
+class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule {
+
+
+    #---------------------
+    # Module info
+    #---------------------  
+    
+    public static function getModuleInfo() {
+        return array(
+            'title' => "Json-LD Schema",
+            'version' => "0.1.1",
+            'summary' => "This module automatically generates semantically correct JSON-LD Schemas for your Processwire web pages for improved Search Engine results.",
+            'author' => "Clip Magic",
+            'href' => "http://www.clipmagic.com.au",
+            'autoload' => false,
+            'singular' => true
+            
+        );
+    }
+
+
+    #---------------------
+    # Module config defaults
+    #---------------------      
+
+    public static function getDefaults() {
+        // Organization information
+        return array(
+            "address_locality" => "",  // string - eg city
+            "description" => "",       // string - short description, eg meta description
+            "address_region" => "",    // string - eg state
+            "postcode" => "",          // string - postcode or zip
+            "street_address" => "",    // string - self explanatory
+            "organization" => "",      // string - name of the business or organization
+            "logo" => "",              // string - http url to the logo image
+            "telephone" => "",         // string - self explanatory
+            "opening_hours" => "",     // string - eg Mo,Tu,We,Th,Fr 09:00-17:00 
+            "latitude" => "",          // string - geo latitude
+            "longitude" => "",         // string - geo longitude
+            "has_map" => "",           // string - google map url
+            "same_as" => ""            // array - list of organization's social media page urls
+        );
+    }
+
+
+    public static function getModuleConfigInputfields(array $data) {
+        
+        $modules = wire('modules');
+        
+        $form = new InputfieldWrapper();
+
+        $defaults = self::getDefaults();
+        $data = array_merge($defaults, $data);
+        
+        // Fieldset - Organization info
+        $fieldset = $modules->get("InputfieldFieldset");        
+        $fieldset->name = "organization_info";
+        $fieldset->label = "Organization info";
+        $fieldset->columnWidth = 50; 
+        $form->add($fieldset); 
+        
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'organization'); 
+        $f->label = 'Organization';
+        $f->value = $data['organization'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'logo'); 
+        $f->label = 'Logo';
+        $f->value = $data['logo'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'street_address'); 
+        $f->label = 'Street';
+        $f->value = $data['street_address'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'address_locality'); 
+        $f->label = 'City';
+        $f->value = $data['address_locality'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'address_region'); 
+        $f->label = 'State';
+        $f->value = $data['address_region'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'postcode'); 
+        $f->label = 'Postcode';
+        $f->value = $data['postcode'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'address_country'); 
+        $f->label = 'Country Code';
+        $f->value = $data['address_country'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'description'); 
+        $f->label = 'Description';
+        $f->value = $data['description'];
+        $fieldset->add($f); 
+                 
+        // Fieldset - Extra info
+        $fieldset = $modules->get("InputfieldFieldset");
+        $fieldset->name = "extra_info";
+        $fieldset->label = "Extra info";
+        $fieldset->columnWidth = 50; 
+        $form->add($fieldset); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'telephone'); 
+        $f->label = 'Phone';
+        $f->value = $data['telephone'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'opening_hours'); 
+        $f->label = 'Opening hours';
+        $f->value = $data['opening_hours'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'latitude'); 
+        $f->label = 'Latitude';
+        $f->value = $data['latitude'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldText'); 
+        $f->attr('name', 'longitude'); 
+        $f->label = 'Longitude';
+        $f->value = $data['longitude'];
+        $fieldset->add($f); 
+
+        $f = $modules->get('InputfieldURL'); 
+        $f->attr('name', 'has_map'); 
+        $f->label = 'Google Map URL';
+        $f->value = $data['has_map'];
+        $fieldset->add($f); 
+
+
+        $f = $modules->get('InputfieldTextarea'); 
+        $f->attr('name', 'same_as'); 
+        $f->label = 'Social media URLs';
+        $f->description = __("Full URL including http. One per line.");
+        $f->value = $data['same_as'];
+        $fieldset->add($f);
+
+        
+        
+        return $form; 
+        
+    }
+
+
+    #---------------------
+    # Module init
+    #---------------------  
+    public function __construct() {
+        parent::__construct();
+        $this->defaults = wire('modules')->getModuleConfigData('MarkupJsonLDSchema');
+    }
+        
+    public function init() {
+
+    }
+
+    public function install() {
+        
+    }
+
+    public function uninstall() {
+        
+    }
+
+    public function ___ready() {
+
+    }
+
+    #---------------------
+    # Module functions
+    #---------------------   
+   
+    public function ___render ($name = null, array $options = null, Page $page = null) {
+
+        $options = is_array($options) ? $options : array();                        
+        $data = array_merge($this->defaults,$options); 
+        
+               
+        $out = "";
+        
+        if(is_null($page)) $page = wire('page');
+        
+         // $name is the class name         
+        if(is_null($name)) return "No schema name given";        
+        
+        $sanitizer = wire('sanitizer');
+        
+        // Dont confuse things by trying to put a BreadcrumbList schema on the home page
+        if ($name == 'BreadcrumbList' && $page->id == 1)
+            return;
+        
+        $name = 'JsonLD' . $sanitizer->text($name);
+        bd($name);
+        
+        if (!class_exists($name)){
+            // load the schema class & function
+            try {
+                $schemaClass = self::_autoloadClass($name);
+            } catch (WireException $e) {
+                throw new WireException( "Rats!!! Class " . $name . " could not be loaded: " .  $e->getMessage());
+            }
+        }
+        
+        // Get the data array as per the class schema
+        $result = $schemaClass->getSchema($data,$page);
+        if (!is_array($result)) {
+            throw new WireException("Class " . $name . " could not be loaded: " .  $e->getMessage());
+        }
+
+        // Add custom arrays to the default schema data array and move it up one level to remove $data['custom']
+        if (!empty($data['custom']) && is_array($data['custom'])) {
+            foreach ($data['custom'] as $key => $value) {
+                $result[$sanitizer->text($key)] = $value; // don't want to convert arrays to text
+            }
+        }
+        
+        $out = json_encode($result);
+
+        return $out;
+    }
+
+    #---------------------
+    # Hooks
+    #---------------------  
+    
+    // There are no module hooks but render and ready methods are hookable
+    
+    #---------------------
+    # Helpers
+    #---------------------  
+    
+    // Load the requested schema from the schemas directory and register the class
+/*    private static function _autoloadClass ($class) : mixed {
+        $shortened = substr($class, 6);
+        $schemaPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'schemas'. DIRECTORY_SEPARATOR . 'jsonld.' . $shortened .'.php';
+        if (file_exists($schemaPath)) {
+            include ($schemaPath);
+
+            bd($class);
+            bd($schemaPath);
+
+            $classLoader = new WireClassLoader();
+//            $classLoader->addNamespace('JsonLDSchema', $schemaPath);
+            $classLoader->loadClass( $class);
+            return new $class();
+        }
+        return false;
+    }*/
+    private static function _autoloadClass(string $class): mixed
+    {
+        // Normalise input
+        $fqcn  = ltrim($class, '\\');
+        $ns    = 'ProcessWire';
+        $short = $fqcn;
+
+        if (strpos($fqcn, '\\') !== false) {
+            $parts = explode('\\', $fqcn);
+            $short = array_pop($parts); // e.g. "JsonLDWebSite"
+        } else {
+            $fqcn = $ns . '\\' . $short; // assume ProcessWire namespace
+        }
+
+        // Map class -> filename: strip leading "JsonLD" for file key
+        // JsonLDWebSite -> WebSite  => schemas/jsonld.WebSite.php
+        $fileKey = preg_replace('/^JsonLD/', '', $short);
+        if ($fileKey === '' || $fileKey === null) {
+            $fileKey = $short;
+        }
+
+        $schemaPath = __DIR__ . DIRECTORY_SEPARATOR . 'schemas'
+            . DIRECTORY_SEPARATOR . 'jsonld.' . $fileKey . '.php';
+
+        if (!is_file($schemaPath)) {
+            return false;
+        }
+
+        require_once $schemaPath;
+
+        // Preferred: namespaced class defined in file
+        if (class_exists($fqcn, false)) {
+            return new $fqcn();
+        }
+
+        // Legacy fallback: non-namespaced class
+        if (class_exists($short, false)) {
+            return new $short();
+        }
+
+        return false;
+    }
+
+}
