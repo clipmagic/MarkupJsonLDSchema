@@ -1,8 +1,8 @@
-# MarkupJsonLDSchema Module v0.0.2
+# MarkupJsonLDSchema Module v0.1.1
 
 
 ## General information
-This module is all about arrays, eith PHP or JSON+LD. JSON+LD schema arrays give your web pages a vastly improved chance of high visibility in SERPs and, at Google's whim, deliver more engaging results than simply a title, link and brief description.
+This module is all about arrays, either PHP or JSON+LD. JSON+LD schema arrays give your web pages a vastly improved chance of high visibility in SERPs and, at Google's whim, deliver more engaging results than simply a title, link and brief description.
 
 While the inherent structure of a schema is pre-defined, there are 1000s of combinations.
 
