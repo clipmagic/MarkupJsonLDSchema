@@ -244,7 +244,6 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
             return;
         
         $name = 'JsonLD' . $sanitizer->text($name);
-        bd($name);
         
         if (!class_exists($name)){
             // load the schema class & function
