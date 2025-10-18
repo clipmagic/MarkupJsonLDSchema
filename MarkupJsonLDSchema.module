@@ -244,7 +244,6 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
             return;
         
         $name = 'JsonLD' . $sanitizer->text($name);
-        bd($name);
         
         if (!class_exists($name)){
             // load the schema class & function
@@ -284,22 +283,7 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
     #---------------------  
     
     // Load the requested schema from the schemas directory and register the class
-/*    private static function _autoloadClass ($class) : mixed {
-        $shortened = substr($class, 6);
-        $schemaPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'schemas'. DIRECTORY_SEPARATOR . 'jsonld.' . $shortened .'.php';
-        if (file_exists($schemaPath)) {
-            include ($schemaPath);
 
-            bd($class);
-            bd($schemaPath);
-
-            $classLoader = new WireClassLoader();
-//            $classLoader->addNamespace('JsonLDSchema', $schemaPath);
-            $classLoader->loadClass( $class);
-            return new $class();
-        }
-        return false;
-    }*/
     private static function _autoloadClass(string $class): mixed
     {
         // Normalise input
