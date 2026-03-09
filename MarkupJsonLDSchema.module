@@ -1,6 +1,6 @@
 <?php namespace ProcessWire;
 /**
- * Json-LD Schemas (0.0.3)
+ * Json-LD Schemas (0.1.3)
  * This module automatically generates semantically correct JSONLD Schema for your Processwire web pages for improved Search Engine results.
  * 
  *
