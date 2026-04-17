@@ -63,6 +63,13 @@ $config = [
                 'value' => '',
                 'stripTags' => 1,
             ],
+
+            'contact_point' => [
+                'type' => 'textarea',
+                'label' => __('Contact Info'),
+                'value' => '',
+                'stripTags' => 1,
+            ],
         ],
     ],
 
@@ -80,7 +87,7 @@ $config = [
             ],
 
             'opening_hours' => [
-                'type' => 'textarea',
+                'type' => 'text',
                 'label' => __('Opening hours'),
                 'value' => '',
                 'stripTags' => 1,

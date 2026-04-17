@@ -34,6 +34,8 @@ Modules → Refresh
 
 3. Install **MarkupJsonLDSchema**
 
+4. Optionally install **ProcessJsonLDSchemaConfig** — this adds a **Setup → Json-LD Schema** page that allows non-superuser roles to edit the module configuration. Assign the `jsonld-schema-config` permission to any role that needs access.
+
 Configuration is optional. The configuration fields simply provide convenient defaults for organization/business schema data.
 
 ---
@@ -183,6 +185,45 @@ The module itself does not enforce caching so developers remain free to implemen
 
 ---
 
+## ProcessJsonLDSchemaConfig (Admin UI)
+
+The module includes **ProcessJsonLDSchemaConfig**, a Process module that exposes the MarkupJsonLDSchema configuration under **Setup → Json-LD Schema** in the admin.
+
+### Purpose
+
+By default, only superusers can access module configuration screens. ProcessJsonLDSchemaConfig provides a dedicated admin page with its own permission, so content editors or site managers can update organization data (name, address, phone, social links, etc.) without needing superuser access.
+
+### Files
+
+Both files live inside the main module directory:
+
+```
+site/modules/MarkupJsonLDSchema/
+├── ProcessJsonLDSchemaConfig.info.php    ← module metadata, permission, admin page
+└── ProcessJsonLDSchemaConfig.module      ← Process class with form builder
+```
+
+### Permission
+
+The module registers the permission `jsonld-schema-config`. To grant access:
+
+1. Go to **Access → Roles**
+2. Edit the desired role
+3. Check **jsonld-schema-config**
+4. Save
+
+### How it works
+
+- Reads and writes the same configuration data as MarkupJsonLDSchema (`$modules->getConfig` / `$modules->saveConfig`)
+- All fields mirror the module's config screen (organization, address, phone, social URLs, search settings, etc.)
+- Changes made from either location (Modules → Configure or Setup → Json-LD Schema) are reflected in both
+
+### Requirements
+
+- MarkupJsonLDSchema must be installed first (declared as dependency)
+
+---
+
 ## Schemas included in the module
 
 ### Default config fields
@@ -320,7 +361,6 @@ $options = [
 <?= $jsonld->render('Person', $options); ?>
 </script>
 ```
----
 
 ### Product
 

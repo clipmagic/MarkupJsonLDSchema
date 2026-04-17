@@ -66,9 +66,7 @@ class JsonLDOrganization extends WireData {
             $out['telephone'] = $sanitizer->text($data['telephone']);
         }
         if (!empty($data['opening_hours'])) {
-            $out['openingHours'] = array_values(array_filter(
-                array_map('trim', explode("\n", $data['openingHours']))
-            ));
+            $out['openingHours'] = $sanitizer->text($data['opening_hours']);
         }
 
         if (!empty($data['same_as'])) {
@@ -89,6 +87,9 @@ class JsonLDOrganization extends WireData {
             $out['hasMap'] = $sanitizer->url($data['has_map']);
         }
 
+        if (!empty($data['contact_point'])) {
+            $out['contactPoint'] = json_decode('[' . $sanitizer->textarea($data['contact_point']) . ']', true);
+        }
 
         if (!empty($data['image'])) {
             if (is_object($data['image']) && !empty($data['image']->httpUrl)) {
@@ -97,10 +98,10 @@ class JsonLDOrganization extends WireData {
                     'url'   => $sanitizer->url($data['image']->httpUrl),
                 ];
                 if (!empty($data['image']->width)) {
-                    $out['image']['width'] = $sanitizer->int($data['image']->width);
+                    $out['image']['width'] = $sanitizer->text($data['image']->width);
                 }
                 if (!empty($data['image']->height)) {
-                    $out['image']['height'] = $sanitizer->int($data['image']->height);
+                    $out['image']['height'] = $sanitizer->text($data['image']->height);
                 }
             } else {
                 $out['image'] = $sanitizer->url($data['image']);

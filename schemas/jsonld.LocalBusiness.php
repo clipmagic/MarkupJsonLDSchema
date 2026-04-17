@@ -40,14 +40,7 @@ class JsonLDLocalBusiness extends WireData {
 
         $out['description']      = !empty($data['description']) ? $sanitizer->text($data['description']) : $sanitizer->text($seo_description);
         $out['telephone']        = $sanitizer->text($data['telephone']);
-
-        if (!empty($data['opening_hours'])) {
-            $out['openingHours'] = array_values(array_filter(
-                array_map('trim', explode("\n", $data['openingHours']))
-            ));
-        }
-
-
+        $out['openingHours']     = $sanitizer->text($data['opening_hours']);
         if (!empty($data['latitude']) || !empty($data['longitude'])) {
             $out['geo']          = array (
                 '@type' => 'GeoCoordinates',
@@ -78,10 +71,10 @@ class JsonLDLocalBusiness extends WireData {
                     'url'   => $sanitizer->url($data['image']->httpUrl),
                 ];
                 if (!empty($data['image']->width)) {
-                    $out['image']['width'] = $sanitizer->int($data['image']->width);
+                    $out['image']['width'] = $sanitizer->text($data['image']->width);
                 }
                 if (!empty($data['image']->height)) {
-                    $out['image']['height'] = $sanitizer->int($data['image']->height);
+                    $out['image']['height'] = $sanitizer->text($data['image']->height);
                 }
             } else {
                 $out['image'] = $sanitizer->url($data['image']);
