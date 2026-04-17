@@ -1,26 +1,40 @@
-<?php
-class JsonLDWebPage  extends WireData {
-    
+<?php namespace ProcessWire;
+
+/**
+ * JSON-LD WebPage schema (schema.org/WebPage).
+ *
+ * Outputs a WebPage type with url, name, description, publisher (@id), optional image, and optional SearchAction from config (search_results_page, search_get_var).
+ *
+ * @see https://schema.org/WebPage
+ */
+class JsonLDWebPage extends WireData {
+
     public function __construct() {
+        parent::__construct();
     }
-    
-    public static function getSchema (array $data = null, Page $page = null) {
-     // Current web page info  
-     
+
+    /**
+     * Build the WebPage schema array.
+     *
+     * @param array<string, mixed> $data Config/overrides: @type, name, description, image (Pageimage), search_results_page, search_get_var.
+     * @param Page $page Page context (used for url, name, description fallbacks).
+     * @return array<string, mixed> Schema array for json_encode.
+     */
+    public static function getSchema(array $data, Page $page): array {
         $out = array();
                  
-        $home = wire('pages')->get(1);
+        $home = wire('pages')->get('/');
         $sanitizer = wire('sanitizer');
             
-        // for flat urls with a page field of page_url   
-        $pageURL  = !empty($page->page_url) ? $home->httpUrl . $page->page_url : $page->httpUrl; 
+        $pageURL = !empty($data['page_url']) ? $home->httpUrl . $data['page_url'] : $page->httpUrl;
                       
-        $out["@context"]    = "http://schema.org";
+        $out["@context"]    = "https://schema.org/";
         $out["@type"]       = !empty($data["@type"]) ? $sanitizer->text($data["@type"]) : "WebPage";
         $out["url"]         = $pageURL;
         $out["name"]        = !empty($data['name']) ? $sanitizer->text($data['name']) : $page->get('seo_title|title|headline');
         $out["description"] = !empty($data['description']) ? $sanitizer->textarea($data['description']) : $page->get('seo_description|summary|blog-summary');
-        if ($data['image']) {
+        $out["publisher"]   = ['@id' => rtrim($home->httpUrl, '/') . '/#organization'];
+        if (!empty($data['image'])) {
             $out["image"]   = array(
                 "@type"  => "ImageObject",
                 "url"    => $sanitizer->url($data['image']->httpUrl),
@@ -28,15 +42,19 @@ class JsonLDWebPage  extends WireData {
                 "width"  => $sanitizer->text($data['image']->width)
             );
          }
-        
-        // Ensure your frontend search page is working correctly!
-        $out["potentialAction"] = array(
-            "@type" => "SearchAction",
-            "target" => wire('pages')->get(1000)->httpUrl . "?q={search_term}",
-            "query-input" => "required name=search_term"
-        );
-        
-         $out = array_filter($out);   
-         return $out;
+
+        $searchPage = trim($sanitizer->text($data['search_results_page'] ?? ''));
+        $searchVar = trim($sanitizer->text($data['search_get_var'] ?? ''));
+        if ($searchPage !== '' && $searchVar !== '') {
+            $searchPage = '/' . trim($searchPage, '/') . '/';
+            $out['potentialAction'] = [
+                '@type' => 'SearchAction',
+                'target' => rtrim($home->httpUrl, '/') . $searchPage . '?' . $searchVar . '={search_term_string}',
+                'query-input' => 'required name=search_term_string',
+            ];
+        }
+
+        $out = array_filter($out);
+        return $out;
     }
 }?>
