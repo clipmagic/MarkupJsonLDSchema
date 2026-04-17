@@ -1,0 +1,187 @@
+<?php namespace ProcessWire;
+
+class ProcessJsonLDSchemaConfig extends Process {
+
+    public function ___execute() {
+        $modules = $this->wire('modules');
+        $input = $this->wire('input');
+        $targetModule = 'MarkupJsonLDSchema';
+
+        $savedConfig = $modules->getConfig($targetModule);
+        if(!is_array($savedConfig)) $savedConfig = [];
+
+        $form = $this->buildForm($savedConfig);
+
+        if($input->post('submit_save')) {
+            $form->processInput($input->post);
+            $newConfig = [];
+            foreach($this->getFieldDefinitions() as $fieldsetKey => $fieldset) {
+                foreach($fieldset['children'] as $name => $def) {
+                    $newConfig[$name] = $form->getChildByName($name)->val();
+                }
+            }
+            $modules->saveConfig($targetModule, $newConfig);
+            $this->message($this->_('Configuración guardada'));
+            $this->wire('session')->redirect($this->wire('page')->url);
+        }
+
+        return $form->render();
+    }
+
+    protected function buildForm(array $savedConfig): InputfieldForm {
+        $modules = $this->wire('modules');
+        $form = $modules->get('InputfieldForm');
+        $form->attr('method', 'post');
+        $form->attr('action', './');
+
+        foreach($this->getFieldDefinitions() as $fieldsetKey => $fieldset) {
+            $fs = $modules->get('InputfieldFieldset');
+            $fs->label = $fieldset['label'];
+            if(isset($fieldset['columnWidth'])) $fs->columnWidth = $fieldset['columnWidth'];
+
+            foreach($fieldset['children'] as $name => $def) {
+                $type = $def['type'] === 'url' ? 'InputfieldURL' : 
+                       ($def['type'] === 'textarea' ? 'InputfieldTextarea' : 'InputfieldText');
+                $f = $modules->get($type);
+                $f->attr('name', $name);
+                $f->label = $def['label'];
+                if(isset($def['description'])) $f->description = $def['description'];
+                if(isset($def['columnWidth'])) $f->columnWidth = $def['columnWidth'];
+                if(isset($def['stripTags'])) $f->stripTags = $def['stripTags'];
+                $f->attr('value', $savedConfig[$name] ?? $def['value']);
+                $fs->add($f);
+            }
+
+            $form->add($fs);
+        }
+
+        $submit = $modules->get('InputfieldSubmit');
+        $submit->attr('name', 'submit_save');
+        $submit->attr('value', $this->_('Guardar'));
+        $form->add($submit);
+
+        return $form;
+    }
+
+    protected function getFieldDefinitions(): array {
+        return [
+            'organization_info' => [
+                'label' => __('Organization info'),
+                'columnWidth' => 50,
+                'children' => [
+                    'organization' => [
+                        'type' => 'text',
+                        'label' => __('Organization'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'logo' => [
+                        'type' => 'text',
+                        'label' => __('Logo'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'street_address' => [
+                        'type' => 'text',
+                        'label' => __('Street'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'address_locality' => [
+                        'type' => 'text',
+                        'label' => __('City'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'address_region' => [
+                        'type' => 'text',
+                        'label' => __('State'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'postcode' => [
+                        'type' => 'text',
+                        'label' => __('Postcode'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'address_country' => [
+                        'type' => 'text',
+                        'label' => __('Country Code'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'description' => [
+                        'type' => 'textarea',
+                        'label' => __('Description'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'contact_point' => [
+                        'type' => 'textarea',
+                        'label' => __('Contact Info'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                ],
+            ],
+            'extra_info' => [
+                'label' => __('Extra info'),
+                'columnWidth' => 50,
+                'children' => [
+                    'telephone' => [
+                        'type' => 'text',
+                        'label' => __('Phone'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'opening_hours' => [
+                        'type' => 'text',
+                        'label' => __('Opening hours'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'latitude' => [
+                        'type' => 'text',
+                        'label' => __('Latitude'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'longitude' => [
+                        'type' => 'text',
+                        'label' => __('Longitude'),
+                        'value' => '',
+                        'stripTags' => 1,
+                    ],
+                    'has_map' => [
+                        'type' => 'url',
+                        'label' => __('Google Map URL'),
+                        'value' => '',
+                    ],
+                    'same_as' => [
+                        'type' => 'textarea',
+                        'label' => __('Social media URLs'),
+                        'description' => __('Full URL including https. One per line.'),
+                        'value' => '',
+                    ],
+                    'search_results_page' => [
+                        'type' => 'text',
+                        'label' => __('Search results page'),
+                        'description' => __('Relative URL, for example /search/. Leave blank to omit SearchAction.'),
+                        'value' => '',
+                        'stripTags' => 1,
+                        'columnWidth' => 50,
+                    ],
+                    'search_get_var' => [
+                        'type' => 'text',
+                        'label' => __('Search GET variable'),
+                        'description' => __('Example: q or s. Leave blank to omit SearchAction.'),
+                        'value' => '',
+                        'stripTags' => 1,
+                        'columnWidth' => 50,
+                    ],
+                ],
+            ],
+        ];
+    }
+}
