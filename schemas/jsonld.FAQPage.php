@@ -14,7 +14,7 @@ class JsonLDFAQPage {
         $out['@context'] = 'https://schema.org';
         $out['@type'] = 'FAQPage';
         $out["publisher"] = ['@id' => rtrim($home->httpUrl, '/') . '/#organization'];
-        $out['image'] = $data['image'];
+        $out['image'] = $data['image'] ?? '';
         if (!empty($data['image'])) {
             $out["image"]   = array(
                 "@type"  => "ImageObject",
@@ -63,7 +63,7 @@ class JsonLDFAQPage {
                     'text' => $answer,
                 ];
 
-                if(!is_null($item['relatedLink'])) {
+                if(isset($item['relatedLink'])) {
                     $acceptedAnswer['relatedLink'] = $item['relatedLink'];
                 }
 
