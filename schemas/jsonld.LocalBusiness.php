@@ -73,6 +73,13 @@ class JsonLDLocalBusiness extends WireData {
             $out['sameAs'] = $sameAs;
         }
 
+        if (!empty($data['logo'])) {
+            $logo = self::sanitizeSingleImageValue($data['logo'], $sanitizer);
+            if (!empty($logo)) {
+                $out['logo'] = $logo;
+            }
+        }
+
         if (!empty($data['image'])) {
             $image = self::sanitizeImageValue($data['image'], $sanitizer);
             if (!empty($image)) {
@@ -86,6 +93,11 @@ class JsonLDLocalBusiness extends WireData {
 
     protected static function sanitizeImageValue(mixed $image, Sanitizer $sanitizer): mixed
     {
+        $singleImage = self::sanitizeSingleImageValue($image, $sanitizer);
+        if (!empty($singleImage)) {
+            return $singleImage;
+        }
+
         if (is_array($image) || $image instanceof \Traversable) {
             $images = [];
 

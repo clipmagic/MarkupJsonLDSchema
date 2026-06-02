@@ -40,19 +40,9 @@ class JsonLDOrganization extends WireData {
             : $sanitizer->textarea($home->get('seo_description|summary'));
 
         if (!empty($data['logo'])) {
-            if (is_object($data['logo']) && !empty($data['logo']->httpUrl)) {
-                $out['logo'] = [
-                    '@type' => 'ImageObject',
-                    'url'   => $sanitizer->url($data['logo']->httpUrl),
-                ];
-                if (!empty($data['logo']->width)) {
-                    $out['logo']['width'] = $sanitizer->int($data['logo']->width);
-                }
-                if (!empty($data['logo']->height)) {
-                    $out['logo']['height'] = $sanitizer->int($data['logo']->height);
-                }
-            } else {
-                $out['logo'] = $sanitizer->url($data['logo']);
+            $logo = self::sanitizeSingleImageValue($data['logo'], $sanitizer);
+            if (!empty($logo)) {
+                $out['logo'] = $logo;
             }
         }
 
@@ -100,6 +90,11 @@ class JsonLDOrganization extends WireData {
 
     protected static function sanitizeImageValue(mixed $image, Sanitizer $sanitizer): mixed
     {
+        $singleImage = self::sanitizeSingleImageValue($image, $sanitizer);
+        if (!empty($singleImage)) {
+            return $singleImage;
+        }
+
         if (is_array($image) || $image instanceof \Traversable) {
             $images = [];
 
