@@ -23,7 +23,7 @@ $config = [
             ],
 
             'street_address' => [
-                'type' => 'text',
+                'type' => 'textarea',
                 'label' => __('Street'),
                 'value' => '',
                 'stripTags' => 1,

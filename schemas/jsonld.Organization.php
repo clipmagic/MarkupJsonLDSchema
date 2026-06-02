@@ -56,7 +56,7 @@ class JsonLDOrganization extends WireData {
             }
         }
 
-        $out['streetAddress']   = $sanitizer->text($data['street_address'] ?? '');
+        $out['streetAddress']   = $sanitizer->textarea($data['street_address'] ?? '');
         $out['addressLocality'] = $sanitizer->text($data['address_locality'] ?? '');
         $out['addressRegion']   = $sanitizer->text($data['address_region'] ?? '');
         $out['postalCode']      = $sanitizer->text($data['postcode'] ?? '');
