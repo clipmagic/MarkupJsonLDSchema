@@ -1,3 +1,6 @@
+v0.1.7 - 2026-06-02
+Street address module config now uses a textarea and LocalBusiness, Organization, and Person preserve multiline street addresses in JSON-LD output.
+
 v0.1.6 - 2026-04-17
 LocalBusiness and Organization image data now supports multiple images via arrays or iterable image collections while preserving single image output.
 Product schema now supports common Offer data via $data['offers'] or simple price/priceCurrency options.
