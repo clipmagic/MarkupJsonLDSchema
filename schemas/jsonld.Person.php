@@ -95,7 +95,7 @@ class JsonLDPerson extends WireData
 
         // Optional flat address fields for module-level normalization
         if(!empty($data['street_address'])) {
-            $out['streetAddress'] = $sanitizer->textarea($data['street_address']);
+            $out['streetAddress'] = $sanitizer->text($data['street_address']);
         }
 
         if(!empty($data['address_locality'])) {

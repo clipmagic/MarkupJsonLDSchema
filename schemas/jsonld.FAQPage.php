@@ -14,31 +14,15 @@ class JsonLDFAQPage {
         $out['@context'] = 'https://schema.org';
         $out['@type'] = 'FAQPage';
         $out["publisher"] = ['@id' => rtrim($home->httpUrl, '/') . '/#organization'];
-        $out['image'] = $data['image'] ?? '';
-        if (!empty($data['image'])) {
-            $out["image"]   = array(
-                "@type"  => "ImageObject",
-                "url"    => $sanitizer->url($data['image']->httpUrl),
-                "height" => $sanitizer->text($data['image']->height),
-                "width"  => $sanitizer->text($data['image']->width)
-            );
-        }
 
-        if (!empty($data['logo'])) {
-            if (is_object($data['logo']) && !empty($data['logo']->httpUrl)) {
-                $out['logo'] = [
-                    '@type' => 'ImageObject',
-                    'url'   => $sanitizer->url($data['logo']->httpUrl),
-                ];
-                if (!empty($data['logo']->width)) {
-                    $out['logo']['width'] = $sanitizer->int($data['logo']->width);
-                }
-                if (!empty($data['logo']->height)) {
-                    $out['logo']['height'] = $sanitizer->int($data['logo']->height);
-                }
-            } else {
-                $out['logo'] = $sanitizer->url($data['logo']);
-            }
+        $out['primaryImageOfPage'] = $data['primaryImageOfPage'];
+        if (!empty($data['image'])) {
+            $out["primaryImageOfPage"]   = array(
+                "@type"  => "ImageObject",
+                "url"    => $sanitizer->url($data['primaryImageOfPage']->httpUrl),
+                "height" => $sanitizer->text($data['primaryImageOfPage']->height),
+                "width"  => $sanitizer->text($data['primaryImageOfPage']->width)
+            );
         }
 
 
@@ -63,7 +47,7 @@ class JsonLDFAQPage {
                     'text' => $answer,
                 ];
 
-                if(isset($item['relatedLink'])) {
+                if(!is_null($item['relatedLink'])) {
                     $acceptedAnswer['relatedLink'] = $item['relatedLink'];
                 }
 
