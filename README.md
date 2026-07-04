@@ -110,6 +110,85 @@ This would render `"@type": "RealEstateAgent"` instead of `"LocalBusiness"`.
 
 ---
 
+### Single `@graph` output
+
+Existing `render()` calls continue to return one JSON-LD object at a time. If you want one script tag per page, collect schemas with `add()` and output the graph with `renderGraph()`.
+
+```php
+<?php
+$jsonld = $modules->get('MarkupJsonLDSchema');
+
+$jsonld
+    ->add('WebSite', [
+        'logo' => $pages->get(1)->images->first->width(200),
+    ])
+    ->add('WebPage', [
+        'name' => $page->title,
+        'url' => $page->httpUrl,
+    ])
+    ->add('BreadcrumbList');
+?>
+
+<?= $jsonld->renderGraph([
+    'script' => true,
+    'pretty' => true,
+]); ?>
+```
+
+This outputs one JSON-LD script shaped like:
+
+```json
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "WebSite"
+        }
+    ]
+}
+```
+
+`renderGraph()` accepts these options:
+
+| Option | Default | Description |
+|----|----|----|
+| `script` | `false` | When `true`, return the full `<script type="application/ld+json">` tag. |
+| `pretty` | `false` | When `true`, use pretty-printed JSON. |
+| `clear` | `true` | When `true`, clear the collected graph after rendering. |
+
+You can also add site-specific schema nodes that are not covered by the bundled schema classes:
+
+```php
+<?php
+$jsonld = $modules->get('MarkupJsonLDSchema');
+
+$jsonld->add('WebPage');
+
+$jsonld->addNode([
+    '@type' => 'Service',
+    '@id' => rtrim($page->httpUrl, '/') . '/#service',
+    'name' => $page->title,
+    'url' => $page->httpUrl,
+    'provider' => [
+        '@id' => rtrim($pages->get(1)->httpUrl, '/') . '/#organization',
+    ],
+]);
+
+echo $jsonld->renderGraph(['script' => true]);
+```
+
+If you already have multiple nodes, use `addNodes($nodes)`.
+
+Graph output removes individual node `@context` values and uses a single top-level `@context`. Nodes with the same `@id` are merged so the first populated value wins and later nodes can fill missing nested values.
+
+If you need the array form of a bundled schema without rendering JSON, use `getSchema()`:
+
+```php
+$schema = $jsonld->getSchema('LocalBusiness', $options);
+```
+
+---
+
 ### Custom schema elements
 
 You can extend the predefined schema arrays using the custom key in $options.
@@ -133,13 +212,11 @@ The module will append these properties to the generated schema.
 
 **Notes**
 
-Custom fields must be simple text key/value pairs.
-
 Keys and values are sanitized as text before being added to the schema.
 
-Complex objects or nested structures (such as ImageObject, PostalAddress, or additional Person/Organization structures) are not supported through custom.
+Arrays are supported for nested values such as ImageObject, PostalAddress, Organization references, and other schema structures. Empty values are skipped.
 
-**If you need more complex schema structures, copy the closest schema class and adapt it for your use case.**
+For larger site-specific schema structures, use `addNode()`, `addNodes()`, or copy the closest schema class and adapt it for your use case.
 
 ---
 

@@ -1,6 +1,6 @@
 <?php namespace ProcessWire;
 /**
- * Json-LD Schemas (0.1.3)
+ * Json-LD Schemas 
  * This module automatically generates semantically correct JSONLD Schema for your Processwire web pages for improved Search Engine results.
  * 
  *
@@ -36,6 +36,9 @@
 
 class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule {
 
+    protected array $graph = [];
+    protected array $graphIndex = [];
+
     static protected array $defaults = [
         'address_locality' => '',
         'description' => '',
@@ -58,22 +61,45 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
     #---------------------
     # Module init
     #---------------------  
+    /**
+     * Load saved module configuration as default schema data.
+     */
     public function __construct() {
         parent::__construct();
         self::$defaults = wire('modules')->getConfig($this->className);
     }
-        
+
+    /**
+     * Initialize the module.
+     *
+     * @return void
+     */
     public function __init() {
     }
 
+    /**
+     * Install the module.
+     *
+     * @return void
+     */
     public function install() {
         
     }
 
+    /**
+     * Uninstall the module.
+     *
+     * @return void
+     */
     public function uninstall() {
         
     }
 
+    /**
+     * Run module ready-time setup.
+     *
+     * @return void
+     */
     public function ___ready() {
 
     }
@@ -82,7 +108,44 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
     # Module functions
     #---------------------   
 
+    /**
+     * Render a single schema as a JSON-LD string.
+     *
+     * @param $name
+     * @param array|null $options
+     * @param Page|null $page
+     * @return string
+     * @throws WireException
+     */
     public function ___render($name = null, ?array $options = null, ?Page $page = null): string
+    {
+        if(is_null($name)) {
+            return 'No schema name given';
+        }
+
+        if(is_null($page)) {
+            $page = wire('page');
+        }
+
+        if($name === 'BreadcrumbList' && (int) $page->id === 1) {
+            return '';
+        }
+
+        $result = $this->___getSchema($name, $options, $page);
+
+        return json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Build and return a single schema array.
+     *
+     * @param $name
+     * @param array|null $options
+     * @param Page|null $page
+     * @return array
+     * @throws WireException
+     */
+    public function ___getSchema($name = null, ?array $options = null, ?Page $page = null): array
     {
         $options = is_array($options) ? $options : [];
         $data = array_merge(self::$defaults, wire('modules')->getConfig($this), $options);
@@ -96,13 +159,13 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         }
 
         if(is_null($name)) {
-            return 'No schema name given';
+            throw new WireException('No schema name given');
         }
 
         $sanitizer = wire('sanitizer');
 
         if($name === 'BreadcrumbList' && (int) $page->id === 1) {
-            return '';
+            return [];
         }
 
         $className = 'JsonLD' . $sanitizer->name($name);
@@ -143,9 +206,130 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         $result = $this->normalizeSchemaResult($result);
         $result = $this->decodeSchemaStrings($result);
 
-        return json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return $result;
     }
 
+    /**
+     * Add a built-in schema type to the current graph.
+     *
+     * @param string $name
+     * @param array|null $options
+     * @param Page|null $page
+     * @return $this
+     * @throws WireException
+     */
+    public function add(string $name, ?array $options = null, ?Page $page = null): self
+    {
+        $schema = $this->___getSchema($name, $options, $page);
+        if(!empty($schema)) {
+            $this->addSchemaToGraph($schema);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add one custom schema node to the current graph.
+     *
+     * @param array $node
+     * @return $this
+     */
+    public function addNode(array $node): self
+    {
+        $this->addGraphNode($this->prepareGraphNode($node));
+
+        return $this;
+    }
+
+    /**
+     * Add multiple custom schema nodes to the current graph.
+     *
+     * @param array $nodes
+     * @return $this
+     */
+    public function addNodes(array $nodes): self
+    {
+        foreach($nodes as $node) {
+            if(is_array($node)) {
+                $this->addNode($node);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Clear all collected graph nodes and graph indexes.
+     *
+     * @return $this
+     */
+    public function clearGraph(): self
+    {
+        $this->graph = [];
+        $this->graphIndex = [];
+
+        return $this;
+    }
+
+    /**
+     * Return the currently collected graph nodes.
+     *
+     * @return array
+     */
+    public function getGraph(): array
+    {
+        return array_values($this->graph);
+    }
+
+    /**
+     * Render the collected graph as JSON-LD, optionally wrapped in a script tag.
+     *
+     * @param array|null $options
+     * @return string
+     */
+    public function renderGraph(?array $options = null): string
+    {
+        $options = is_array($options) ? $options : [];
+        $script = (bool) ($options['script'] ?? false);
+        $pretty = (bool) ($options['pretty'] ?? false);
+        $clear = array_key_exists('clear', $options) ? (bool) $options['clear'] : true;
+
+        if(empty($this->graph)) {
+            return '';
+        }
+
+        $jsonFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+        if($pretty) {
+            $jsonFlags |= JSON_PRETTY_PRINT;
+        }
+
+        $json = json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => $this->getGraph(),
+        ], $jsonFlags);
+
+        if($clear) {
+            $this->clearGraph();
+        }
+
+        if(!is_string($json)) {
+            return '';
+        }
+
+        if($script) {
+            return '<script type="application/ld+json">' . "\n" . $json . "\n" . '</script>';
+        }
+
+        return $json;
+    }
+
+    /**
+     * Sanitize custom schema values recursively.
+     *
+     * @param mixed $value
+     * @return mixed
+     * @throws WireException
+     */
     protected function sanitizeCustomValue(mixed $value): mixed
     {
         $sanitizer = $this->wire('sanitizer');
@@ -181,6 +365,13 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         return null;
     }
 
+    /**
+     * Decode HTML entities in schema string values.
+     *
+     * @param mixed $value
+     * @param string|null $key
+     * @return mixed
+     */
     protected function decodeSchemaStrings(mixed $value, ?string $key = null): mixed
     {
         // Skip decoding for @keys and url
@@ -202,6 +393,13 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         return $value;
     }
 
+    /**
+     * Remove inherited business/contact defaults from Person schemas unless explicitly supplied.
+     *
+     * @param array $data
+     * @param array $options
+     * @return void
+     */
     protected function limitPersonInheritedFields(array &$data, array $options): void
     {
         $explicitOnly = [
@@ -224,11 +422,177 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         }
     }
 
+    /**
+     * Normalize a completed schema array before output.
+     *
+     * @param array $result
+     * @return array
+     */
     protected function normalizeSchemaResult(array $result): array
     {
         return $this->normalizeAddressResult($result);
     }
 
+    /**
+     * Add a schema array or its graph nodes to the current graph.
+     *
+     * @param array $schema
+     * @return void
+     */
+    protected function addSchemaToGraph(array $schema): void
+    {
+        if(isset($schema['@graph']) && is_array($schema['@graph'])) {
+            foreach($schema['@graph'] as $node) {
+                if(is_array($node)) {
+                    $this->addGraphNode($this->prepareGraphNode($node));
+                }
+            }
+
+            return;
+        }
+
+        $this->addGraphNode($this->prepareGraphNode($schema));
+    }
+
+    /**
+     * Prepare a graph node by removing per-node context and empty values.
+     *
+     * @param array $node
+     * @return array
+     */
+    protected function prepareGraphNode(array $node): array
+    {
+        unset($node['@context']);
+
+        return $this->removeEmptySchemaValues($node);
+    }
+
+    /**
+     * Add or merge one prepared graph node.
+     *
+     * @param array $node
+     * @return void
+     */
+    protected function addGraphNode(array $node): void
+    {
+        if(empty($node)) return;
+
+        $key = $this->graphNodeKey($node);
+
+        if(isset($this->graphIndex[$key])) {
+            $this->graph[$this->graphIndex[$key]] = $this->mergeGraphNodes($this->graph[$this->graphIndex[$key]], $node);
+            return;
+        }
+
+        $this->graphIndex[$key] = count($this->graph);
+        $this->graph[] = $node;
+    }
+
+    /**
+     * Generate a unique graph key from @id or node content.
+     *
+     * @param array $node
+     * @return string
+     */
+    protected function graphNodeKey(array $node): string
+    {
+        if(!empty($node['@id']) && is_scalar($node['@id'])) {
+            return '@id:' . (string) $node['@id'];
+        }
+
+        return 'node:' . md5(json_encode($node, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Merge an incoming graph node into an existing graph node.
+     *
+     * @param array $existing
+     * @param array $incoming
+     * @return array
+     */
+    protected function mergeGraphNodes(array $existing, array $incoming): array
+    {
+        foreach($incoming as $key => $value) {
+            if($this->isEmptySchemaValue($value)) continue;
+
+            if(!array_key_exists($key, $existing) || $this->isEmptySchemaValue($existing[$key])) {
+                $existing[$key] = $value;
+                continue;
+            }
+
+            if(is_array($existing[$key]) && is_array($value) && $this->isAssocArray($existing[$key]) && $this->isAssocArray($value)) {
+                $existing[$key] = $this->mergeGraphNodes($existing[$key], $value);
+            }
+        }
+
+        return $existing;
+    }
+
+    /**
+     * Remove empty schema values recursively.
+     *
+     * @param array $node
+     * @return array
+     */
+    protected function removeEmptySchemaValues(array $node): array
+    {
+        $isAssoc = $this->isAssocArray($node);
+
+        foreach($node as $key => $value) {
+            if(is_array($value)) {
+                $value = $this->removeEmptySchemaValues($value);
+            }
+
+            if($this->isEmptySchemaValue($value)) {
+                unset($node[$key]);
+                continue;
+            }
+
+            $node[$key] = $value;
+        }
+
+        if(!$isAssoc) {
+            return array_values($node);
+        }
+
+        return $node;
+    }
+
+    /**
+     * Determine whether a schema value should be treated as empty.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected function isEmptySchemaValue(mixed $value): bool
+    {
+        if(is_object($value)) {
+            $encoded = json_encode($value);
+            return $encoded === '{}' || $encoded === '[]' || $encoded === 'null';
+        }
+
+        return $value === null || $value === '' || $value === [];
+    }
+
+    /**
+     * Determine whether an array has string or non-sequential keys.
+     *
+     * @param array $array
+     * @return bool
+     */
+    protected function isAssocArray(array $array): bool
+    {
+        if($array === []) return false;
+
+        return array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
+     * Move flat address fields into a PostalAddress object.
+     *
+     * @param array $result
+     * @return array
+     */
     protected function normalizeAddressResult(array $result): array
     {
         $address = array_filter([
@@ -254,6 +618,12 @@ class MarkupJsonLDSchema extends WireData implements Module, ConfigurableModule 
         return $result;
     }
 
+    /**
+     * Load and instantiate a schema class by generated class name.
+     *
+     * @param string $class
+     * @return mixed
+     */
     private function loadSchemaClass(string $class): mixed
     {
         $short = ltrim($class, '\\');

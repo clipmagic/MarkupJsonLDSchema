@@ -1,5 +1,8 @@
-v0.1.7 - 2026-06-02
-Street address module config now uses a textarea and LocalBusiness, Organization, and Person preserve multiline street addresses in JSON-LD output.
+v0.2.0 - 2026-07-04
+Added array-native schema access with getSchema().
+Added @graph support with add(), addNode(), addNodes(), getGraph(), renderGraph(), and clearGraph().
+renderGraph() can optionally return a full script tag and clears graph state by default.
+Graph output removes per-node @context values and merges duplicate @id nodes.
 
 v0.1.6 - 2026-04-17
 LocalBusiness and Organization image data now supports multiple images via arrays or iterable image collections while preserving single image output.
