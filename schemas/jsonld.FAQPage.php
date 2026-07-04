@@ -47,7 +47,7 @@ class JsonLDFAQPage {
                     'text' => $answer,
                 ];
 
-                if(!is_null($item['relatedLink'])) {
+                if(array_key_exists('relatedLink', $item) && !is_null($item['relatedLink'])) {
                     $acceptedAnswer['relatedLink'] = $item['relatedLink'];
                 }
 
