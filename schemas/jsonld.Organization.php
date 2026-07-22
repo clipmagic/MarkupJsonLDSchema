@@ -75,12 +75,16 @@ class JsonLDOrganization extends WireData {
             ));
         }
 
-        if (!empty($data['latitude']) || !empty($data['longitude'])) {
-            $out['geo'] = [
-                '@type'    => 'GeoCoordinates',
-                'latitude' => $sanitizer->text($data['latitude'] ?? ''),
-                'longitude' => $sanitizer->text($data['longitude'] ?? ''),
-            ];
+        $latitude = $data['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? null;
+        if (is_numeric($latitude) || is_numeric($longitude)) {
+            $out['geo'] = ['@type' => 'GeoCoordinates'];
+            if (is_numeric($latitude)) {
+                $out['geo']['latitude'] = (float) $latitude;
+            }
+            if (is_numeric($longitude)) {
+                $out['geo']['longitude'] = (float) $longitude;
+            }
         }
 
         if (!empty($data['has_map'])) {
@@ -100,6 +104,12 @@ class JsonLDOrganization extends WireData {
 
     protected static function sanitizeImageValue(mixed $image, Sanitizer $sanitizer): mixed
     {
+        // Pageimage extends WireData, which is Traversable. Check for a single
+        // image object before treating a value as a collection of images.
+        if (is_object($image) && !empty($image->httpUrl)) {
+            return self::sanitizeSingleImageValue($image, $sanitizer);
+        }
+
         if (is_array($image) || $image instanceof \Traversable) {
             $images = [];
 

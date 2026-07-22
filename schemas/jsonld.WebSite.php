@@ -3,7 +3,7 @@
 /**
  * JSON-LD WebSite schema (schema.org/WebSite).
  *
- * Outputs a WebSite type with url, name, description, publisher (@id), logo, and optional SearchAction (potentialAction) from config (search_results_page, search_get_var).
+ * Outputs a WebSite type with url, name, description, publisher (@id), and optional SearchAction (potentialAction) from config (search_results_page, search_get_var).
  *
  * @see https://schema.org/WebSite
  */
@@ -16,7 +16,7 @@ class JsonLDWebSite extends WireData {
     /**
      * Build the WebSite schema array.
      *
-     * @param array<string, mixed>|null $data Module config: name, description, logo (Pageimage or URL), search_results_page, search_get_var; overrides: @type.
+     * @param array<string, mixed>|null $data Module config: name, description, search_results_page, search_get_var; overrides: @type.
      * @param Page|null $page Page context (unused; home page used for url/fallbacks).
      * @return array<string, mixed> Schema array for json_encode.
      */
@@ -37,16 +37,6 @@ class JsonLDWebSite extends WireData {
         $out["name"]      = !empty($data["name"]) ? $sanitizer->text($data["name"]) : $home->get('seo_title|headline|title');
         $out["description"] = !empty($data["description"]) ? $sanitizer->textarea($data["description"]) : $home->get('seo_description|summary');
         $out["publisher"] = ['@id' => rtrim($home->httpUrl, '/') . '/#organization'];
-        
-        if (!empty($data['logo'])) {
-            $out["logo"]    = array(
-                "@type" => "ImageObject",
-                "url"    => $sanitizer->url($data['logo']->httpUrl),
-                "height" => $sanitizer->text($data['logo']->height),
-                "width"  => $sanitizer->text($data['logo']->width)
-            );
-        }
-        
         // Ensure your frontend search page is working correctly!
 
         $searchPage = trim($sanitizer->text($data['search_results_page'] ?? ''));
