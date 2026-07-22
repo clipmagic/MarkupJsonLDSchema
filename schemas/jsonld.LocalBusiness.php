@@ -3,7 +3,7 @@
 /**
  * JSON-LD LocalBusiness schema (schema.org/LocalBusiness).
  *
- * Outputs a LocalBusiness (Organization subtype) with name, address, description, telephone, openingHours, optional geo and sameAs. Uses module config (organization, address fields, etc.).
+ * Outputs a LocalBusiness (Organization subtype) with name, address, description, telephone, openingHours, priceRange, optional geo and sameAs. Uses module config (organization, address fields, etc.).
  *
  * @see https://schema.org/LocalBusiness
  */
@@ -16,7 +16,7 @@ class JsonLDLocalBusiness extends WireData {
     /**
      * Build the LocalBusiness schema array.
      *
-     * @param array<string, mixed>|null $data Module config: organization, street_address, address_locality, address_region, postcode, address_country, description, telephone, opening_hours, latitude, longitude, has_map, same_as; overrides: @type.
+     * @param array<string, mixed>|null $data Module config: organization, street_address, address_locality, address_region, postcode, address_country, description, telephone, opening_hours, price_range, latitude, longitude, has_map, same_as; overrides: @type.
      * @param Page|null $page Page context (used for description fallback from seo_description|headline|summary|title).
      * @return array<string, mixed> Schema array for json_encode.
      */
@@ -25,9 +25,9 @@ class JsonLDLocalBusiness extends WireData {
         $data ??= [];
         $page ??= wire('page');
         $sanitizer = wire('sanitizer');
- 
+
         $seo_description = !empty($data['description']) ? $sanitizer->text($data['description']) : $page->get('seo_description|headline|summary|title');
- 
+
         $out["@context"]         = "https://schema.org/";
         $out["@type"]            = !empty($data["@type"]) ? $sanitizer->text($data["@type"]) : "LocalBusiness";
         $out['name']             = $sanitizer->text($data['organization']);
@@ -48,6 +48,10 @@ class JsonLDLocalBusiness extends WireData {
             }  else if(is_array($data['opening_hours'])) {
                 $out['openingHours'] = $data['opening_hours'];
             }
+
+        $out['priceRange'] = !empty($data['price_range'])
+            ? $sanitizer->text($data['price_range'])
+            : '$$$';
 
 
         $latitude = $data['latitude'] ?? null;
