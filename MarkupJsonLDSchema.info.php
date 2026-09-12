@@ -5,7 +5,7 @@ $info = [
     'version' => "0.2.0",
     'summary' => "This module automatically generates semantically correct JSON-LD Schemas for your Processwire web pages for improved Search Engine results.",
     'author' => "Clip Magic",
-    'href' => "http://www.clipmagic.com.au",
+    'href' => "https://clipmagic.com.au",
     'autoload' => false,
     'singular' => true
 ];
